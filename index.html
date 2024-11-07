@@ -171,23 +171,45 @@
             outputDiv.textContent = "Processing image... Please wait.";
 
             // Use Tesseract.js to recognize text
-            Tesseract.recognize(
-                file, // The image file
-                'eng', // Language (English by default)
-                {
-                    logger: (m) => {
-                        console.log(m); // Log progress (optional)
-                    }
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+
+            img.onload = function () {
+                // Preprocess image by converting to grayscale and resizing (optional)
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+
+                // Draw image on canvas
+                ctx.drawImage(img, 0, 0);
+
+                // Apply preprocessing: convert to grayscale (for better OCR accuracy)
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                for (let i = 0; i < data.length; i += 4) {
+                    const gray = 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
+                    data[i] = data[i + 1] = data[i + 2] = gray;
                 }
-            ).then(({ data: { text } }) => {
-                // Hide the loading spinner and display the recognized text
-                document.getElementById('spinner').style.display = "none";
-                outputDiv.textContent = text || "No text found in the image.";
-            }).catch(error => {
-                document.getElementById('spinner').style.display = "none";
-                outputDiv.textContent = "Error processing image.";
-                console.error(error);
-            });
+                ctx.putImageData(imageData, 0, 0);
+
+                // Perform OCR on the processed canvas
+                Tesseract.recognize(
+                    canvas.toDataURL(), // Convert the canvas to a data URL
+                    'eng', // Language (English by default)
+                    {
+                        logger: (m) => console.log(m) // Log progress (optional)
+                    }
+                ).then(({ data: { text } }) => {
+                    // Hide the loading spinner and display the recognized text
+                    document.getElementById('spinner').style.display = "none";
+                    outputDiv.textContent = text || "No text found in the image.";
+                }).catch(error => {
+                    document.getElementById('spinner').style.display = "none";
+                    outputDiv.textContent = "Error processing image.";
+                    console.error(error);
+                });
+            };
         }
     </script>
 
