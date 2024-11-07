@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to Text Converter</title>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: #f4f4f4;
+            margin: 0;
+        }
+
+        #output {
+            margin-top: 20px;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 80%;
+            max-width: 500px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 16px;
+        }
+
+        input[type="file"] {
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Image to Text Converter</h1>
+    <input type="file" id="imageInput" accept="image/*" />
+    <button onclick="convertImageToText()">Convert Image to Text</button>
+    
+    <div id="output"></div>
+
+    <script>
+        function convertImageToText() {
+            const file = document.getElementById('imageInput').files[0];
+            if (!file) {
+                alert("Please select an image file!");
+                return;
+            }
+
+            // Display loading message
+            const outputDiv = document.getElementById('output');
+            outputDiv.textContent = "Processing image... Please wait.";
+
+            // Use Tesseract.js to recognize text
+            Tesseract.recognize(
+                file, // The image file
+                'eng', // The language
+                {
+                    logger: (m) => {
+                        console.log(m); // Log progress (optional)
+                    }
+                }
+            ).then(({ data: { text } }) => {
+                // Display the recognized text
+                outputDiv.textContent = text;
+            }).catch(error => {
+                outputDiv.textContent = "Error processing image.";
+                console.error(error);
+            });
+        }
+    </script>
+
+</body>
+</html>
