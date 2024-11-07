@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image to Text Converter</title>
+    <!-- Include Tesseract.js via CDN -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script>
     <style>
         body {
@@ -71,7 +72,7 @@
             // Use Tesseract.js to recognize text
             Tesseract.recognize(
                 file, // The image file
-                'eng', // The language
+                'eng', // The language (English by default)
                 {
                     logger: (m) => {
                         console.log(m); // Log progress (optional)
